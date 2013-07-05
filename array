@@ -1,0 +1,147 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \author (c) Christopher Kormanyos, Marco Paland (info@paland.com)
+///             2010-2012 Reutlingen, Hannover, Germany
+///
+/// \license LGPLv3
+/// This file is part of the CPP11 library.
+/// CPP11 is free software: you can redistribute it and/or modify
+/// it under the terms of the GNU Lesser Public License as published by
+/// the Free Software Foundation, either version 3 of the License, or
+/// (at your option) any later version.
+/// CPP11 is distributed in the hope that it will be useful,
+/// but WITHOUT ANY WARRANTY; without even the implied warranty of
+/// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+/// GNU Lesser Public License for more details.
+/// You should have received a copy of the GNU Lesser Public License
+/// along with CPP11. If not, see <http://www.gnu.org/licenses/>.
+///
+///
+/// \brief <array> implementation of C++11
+///
+/// This class implements the <array> class of C++11 for compilers
+/// which do not support this standard.
+///
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef _STD_ARRAY_H_
+#define _STD_ARRAY_H_
+
+#include <algorithm>
+#include <iterator>
+
+
+namespace std {
+
+template<typename T, const std::size_t N>
+struct array
+{
+  typedef T                                     value_type;
+  typedef T*                                    pointer;
+  typedef const T*                              const_pointer;
+  typedef T&                                    reference;
+  typedef const T&                              const_reference;
+  typedef pointer                               iterator;
+  typedef const_pointer                         const_iterator;
+  typedef std::size_t                           size_type;
+  typedef std::ptrdiff_t                        difference_type;
+  typedef std::reverse_iterator<iterator>       reverse_iterator;
+  typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+
+  // instance - support for zero sized arrays is mandatory
+  value_type instance_[N ? N : 1];
+
+  // iterators
+  iterator begin(void) { return instance_; }
+  iterator end  (void) { return instance_ + N; }
+
+  const_iterator begin(void) const { return instance_; }
+  const_iterator end  (void) const { return instance_ + N; }
+
+  reverse_iterator rbegin(void) { return reverse_iterator(instance_ + N); }
+  reverse_iterator rend  (void) { return reverse_iterator(instance_); }
+
+  const_reverse_iterator rbegin(void) const { return const_reverse_iterator(instance_ + N); }
+  const_reverse_iterator rend  (void) const { return const_reverse_iterator(instance_); }
+
+  const_iterator cbegin(void) const { return instance_; }
+  const_iterator cend  (void) const { return instance_ + N; }
+
+  const_reverse_iterator crbegin(void) const { return const_reverse_iterator(instance_ + N); }
+  const_reverse_iterator crend  (void) const { return const_reverse_iterator(instance_); }
+
+  // capacity
+  const size_type size(void) const     { return N; }
+  const bool empty(void) const         { return size() == 0; }
+  const size_type max_size(void) const { return N; }
+
+  // element access
+  reference operator[](const size_type i)             { return instance_[i]; }
+  const_reference operator[](const size_type i) const { return instance_[i]; }
+
+  reference at(const size_type i)             { rangecheck(i); return instance_[i]; }
+  const_reference at(const size_type i) const { rangecheck(i); return instance_[i]; }
+
+  reference front(void)             { return *begin(); }
+  const_reference front(void) const { return *begin(); }
+
+  reference back(void)             { return N ? *(end() - 1U) : *end(); }
+  const_reference back(void) const { return N ? *(end() - 1U) : *end(); }
+  
+  T* data()             { return instance_; }
+  const T* data() const { return instance_; }
+
+  // modifiers
+  void fill(const T& val) { std::fill_n(begin(), size(), val); }
+  void swap(array& arr)   { std::swap_ranges(begin(), end(), arr.begin()); }
+
+private:
+  static void rangecheck(const size_type) { }
+};
+
+// array comparisons
+template<typename T2, std::size_t N>
+inline bool operator==(const array<T2, N>& _one, const array<T2, N>& _two)
+{
+  return std::equal(_one.begin(), _one.end(), _two.begin());
+}
+
+template<typename T2, std::size_t N>
+inline bool operator!=(const array<T2, N>& _one, const array<T2, N>& _two)
+{
+  return !(_one == _two);
+}
+
+template<typename T2, std::size_t N>
+inline bool operator<(const array<T2, N>& _one, const array<T2, N>& _two)
+{
+  return std::lexicographical_compare(_one.begin(), _one.end(), _two.begin(), _two.end());
+}
+
+template<typename T2, std::size_t N>
+inline bool operator>(const array<T2, N>& _one, const array<T2, N>& _two)
+{
+  return _two < _one;
+}
+
+template<typename T2, std::size_t N>
+inline bool operator<=(const array<T2, N>& _one, const array<T2, N>& _two)
+{
+  return !(_one > _two);
+}
+
+template<typename T2, std::size_t N>
+inline bool operator>=(const array<T2, N>& _one, const array<T2, N>& _two)
+{
+  return !(_one < _two);
+}
+
+// specialized algorithms
+template<typename T2, std::size_t N>
+inline void swap(array<T2, N>& _one, array<T2, N>& _two)
+{
+  _one.swap(_two);
+}
+
+} // namespace std
+
+#endif // _STD_ARRAY_H_
