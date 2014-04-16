@@ -31,7 +31,8 @@
 
 #include <windows.h>
 #include <process.h>
-#include "../chrono"   // for duration
+
+#include <chrono>   // for duration
 
 
 namespace std {

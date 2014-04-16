@@ -44,7 +44,9 @@ system_clock::time_point system_clock::now()
   typedef chrono::time_point<system_clock, duration> from;
 
   (void)::GetSystemTime(&st);               // get UTC system time, resolution is [ms]
-  (void)::SystemTimeToFileTime(&st, &ft);   // ft is given as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC)
+  if (!::SystemTimeToFileTime(&st, &ft)) {  // ft is given as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC)
+    return time_point_cast<system_clock::duration>(from(duration(0U)));
+  }
 
   // return time point value in [ms] and epoch of 1.1.1970 (UTC)
   // ft epoch is 1.1.1601 in [0.1µs], so subtract offset of 11644473600 seconds for 1.1.1970 epoch

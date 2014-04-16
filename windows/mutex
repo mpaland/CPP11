@@ -27,6 +27,7 @@
 #define _STD_MUTEX_WIN_
 
 #include <windows.h>
+
 #include <algorithm>  // for std::swap
 
 

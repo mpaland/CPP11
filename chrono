@@ -16,13 +16,13 @@
 /// along with CPP11. If not, see <http://www.gnu.org/licenses/>.
 ///
 ///
-/// \brief <chrono> implementation of C++11 on Windows(tm)
+/// \brief Generic implementation of C++11 <chrono>
 ///
 /// This class implements the <chrono> class of C++11 for compilers
 /// which do not support this standard.
 /// Needs <ratio> and standard <limits>, <ctime> headers
 ///
-/// To adapt <chrono> to you own system you need to modify chrono_impl
+/// To adapt <chrono> to you own system you need to modify platform dependent chrono_impl.cpp
 ///
 /// \todo - add more specializations of missing common_types for duration arithmetic
 ///       - some kind of 'enable_if' is missing. So care must be taken to use <chrono> properly!
@@ -35,7 +35,7 @@
 #include <limits>
 #include <ctime>
 
-#include "cstdint"
+#include <cstdint>
 #include "ratio"
 
 

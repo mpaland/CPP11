@@ -34,20 +34,30 @@
 
 #include <windows.h>
 
-#include "mutex"        // for unique_lock
-#include "../chrono"    // for duration
+#include <mutex>    // for unique_lock
+#include <chrono>   // for duration
 
 
 namespace std {
 
-// cv_status
-namespace cv_status {   // strongly typed enums (enum class) not available before C++11
-enum cv_status
+ // strongly typed enums (enum class) not available before C++11
+struct cv_status
 {
-  no_timeout,
-  timeout
+  enum type
+  {
+    no_timeout,
+    timeout
+  };
+
+  cv_status(type v)
+    : value_(v) { }
+
+  operator type() const { return value_; }
+
+private:
+  type value_;
 };
-} // namespace cv_status
+
 
 class condition_variable
 {
@@ -135,19 +145,19 @@ public:
   }
 
   template<typename Rep, typename Period>
-  cv_status::cv_status wait_for(std::unique_lock<std::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time)
+  cv_status wait_for(std::unique_lock<std::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time)
   {
     return wait_impl(lock, static_cast<std::uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(rel_time).count())) ? std::cv_status::no_timeout : std::cv_status::timeout;
   }
 
   template<typename Rep, typename Period, typename Predicate>
-  cv_status::cv_status wait_for(std::unique_lock<std::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time, Predicate pred)
+  cv_status wait_for(std::unique_lock<std::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time, Predicate pred)
   {
     return wait_impl(lock, static_cast<std::uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(rel_time).count())) ? std::cv_status::no_timeout : std::cv_status::timeout;
   }
 
   template <typename Clock, typename Duration>
-  cv_status::cv_status wait_until(std::unique_lock<std::mutex>& lock, const std::chrono::time_point<Clock, Duration>& abs_time)
+  cv_status wait_until(std::unique_lock<std::mutex>& lock, const std::chrono::time_point<Clock, Duration>& abs_time)
   {
     // TBD
   }
